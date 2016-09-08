@@ -91,8 +91,8 @@ typedef struct {
 	uint16_t count;   ///< The number of continuation bytes in the current sequence.
 	int16_t offset;   ///< The state's current sequence offset.
 	uint32_t value;   ///< The state's current glyph value.
-	uint8_t frag[7];  ///< The beginning of an incomplete UTF-8 sequence.
-	uint8_t fragSize; ///< The size of the fragment on byte.
+	uint8_t frag[7];  ///< The beginning of an incomplete sequence.
+	uint8_t fragSize; ///< The size of the incomplete sequence in byte.
 } utf8_validator;
 
 /**
