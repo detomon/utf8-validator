@@ -33,7 +33,7 @@ size_t outSize;
 
 while (inSize) {
     outSize = sizeof(buffer);
-    utf8_validate(&validator, (uint8_t const**) &dataPtr, &inSize, buffer, &outSize);
+    utf8_validate(&validator, &dataPtr, &inSize, buffer, &outSize);
 
     if (outSize) {
         handleChunk(buffer, outSize);
@@ -41,8 +41,7 @@ while (inSize) {
 }
 ```
 
-The stream end is signalled by giving an empty chunk. This is to check if
-the last sequence is truncated.
+The stream end is signalled by giving an empty chunk. This is to check for a possible truncation of the last sequence.
 
 ```c
 outSize = sizeof(buffer);
@@ -53,5 +52,5 @@ if (outSize) {
 }
 ```
 
-The output buffer size should be around 4096 bytes. The absolute minimum size
-is 72 bytes, which is really ineffective
+The output buffer size should be as big as possible. The absolute minimum size
+is 72 bytes, which is really ineffective.

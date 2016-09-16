@@ -25,7 +25,7 @@
 #include "utf8-validator.h"
 
 /**
- * Get minimum of two values value.
+ * Get minimum of two values.
  */
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 
@@ -55,9 +55,9 @@
 #define MAX_VALUE 0x10FFFF
 
 /**
- * UTF-8 initial bytes from 0x80 to 0xFF. Contains the number of following bytes
- * in the upper 3 bits (0b11100000) and the initial value in the lower 5 bits
- * (0b00011111).
+ * UTF-8 initial bytes from 0x80 to 0xFF. A value contains the number of
+ * following bytes in the upper 3 bits (0b11100000) and the initial value in the
+ * lower 5 bits (0b00011111).
  */
 static uint8_t const lookup_table[128] = {
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -79,7 +79,7 @@ static uint8_t const lookup_table[128] = {
 };
 
 /**
- * Write replacement glyph.
+ * Write replacement glyph into buffer and return new cursor.
  */
 static inline uint8_t* write_replacement_glyph(uint8_t* buffer) {
 	*buffer++ = 0xEF;
