@@ -36,7 +36,7 @@
 #define DECOCDED_SIZE(size) (((size) / 3) - 16)
 
 /**
- * Maximum valid range for sequence sizes. Value is expressed as shift.
+ * Minimum valid range for sequence sizes. Value is expressed as shift.
  *
  * ```
  * 0XXXXXXX
@@ -50,10 +50,9 @@
 #define VALID_RANGES ((7UL << 5) | (11UL << 10) | (16UL << 15) | (22UL << 20) | (29UL << 25))
 
 /**
- * Get minimum valid value for given byte count. Extracts 5 bytes at the given
- * index and use them as shift value.
+ * Calculate minimum valid value for sequence with `count` continuation bytes.
  */
-#define VALID_RANGE(count) (1UL << ((VALID_RANGES >> (count * 5)) & 0x1F))
+#define MIN_VALID_VALUE(count) (1UL << (((VALID_RANGES >> ((count) * 5)) & 0x1F)))
 
 /**
  * Maximum valid Unicode value.
@@ -62,8 +61,8 @@
 
 /**
  * UTF-8 initial bytes from 0x80 to 0xFF. A value contains the number of
- * following bytes in the upper 3 bits (0b11100000) and the initial value in the
- * lower 5 bits (0b00011111).
+ * continuation bytes in the upper 3 bits (0b11100000) and the initial value in
+ * the lower 5 bits (0b00011111).
  */
 static uint8_t const lookup_table[128] = {
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -103,8 +102,8 @@ static inline uint8_t* write_replacement_glyph(uint8_t* buffer) {
  */
 static uint8_t* parse_chunk(utf8_validator* validator, uint8_t const* inPtr, uint8_t const* end, uint8_t* outPtr) {
 	uint32_t count;
-	uint32_t value;
 	int32_t offset;
+	uint32_t value;
 	size_t size;
 
 	// continue from previous truncated sequence
@@ -164,8 +163,8 @@ static uint8_t* parse_chunk(utf8_validator* validator, uint8_t const* inPtr, uin
 			// save state and abort if sequence is truncated
 			if (offset < count) {
 				validator->count = count;
-				validator->value = value;
 				validator->offset = offset;
+				validator->value = value;
 
 				validator->fragSize = offset + 1;
 				memcpy(validator->frag, outPtr - validator->fragSize, validator->fragSize);
@@ -175,7 +174,7 @@ static uint8_t* parse_chunk(utf8_validator* validator, uint8_t const* inPtr, uin
 
 			if (value >= 0xD800) {
 				// check if low or high surrogate
-				// matches range from 0xD8XX to 0xDCXX
+				// matches range from 0xD8nn to 0xDCnn
 				if ((value & ~0x07FF) == 0xD800) {
 					goto invalid_sequence;
 				}
@@ -194,7 +193,7 @@ static uint8_t* parse_chunk(utf8_validator* validator, uint8_t const* inPtr, uin
 			}
 
 			// check for overlong sequences
-			if (value < VALID_RANGE(count)) {
+			if (value < MIN_VALID_VALUE(count)) {
 				goto invalid_sequence;
 			}
 		}

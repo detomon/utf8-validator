@@ -1,3 +1,7 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
 #include "test.h"
 
 static uint8_t* readFile(char const* path, size_t* outSize) {
@@ -24,7 +28,7 @@ static uint8_t* readFile(char const* path, size_t* outSize) {
 }
 
 static void handleChunk(uint8_t const* chunk, size_t size) {
-	fwrite(chunk, sizeof(uint8_t), size, stdout);
+	//fwrite(chunk, sizeof(uint8_t), size, stdout);
 }
 
 int main() {
