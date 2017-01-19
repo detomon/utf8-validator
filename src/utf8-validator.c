@@ -47,7 +47,13 @@
  * 1111110X 10XXXXXX 10XXXXXX 10XXXXXX 10XXXXXX 10XXXXXX  (1 << 29)
  * ```
  */
-#define VALID_RANGES ((7 << 5) | (11 << 10) | (16 << 15) | (22 << 20) | (29 << 25))
+#define VALID_RANGES ((7UL << 5) | (11UL << 10) | (16UL << 15) | (22UL << 20) | (29UL << 25))
+
+/**
+ * Get minimum valid value for given byte count. Extracts 5 bytes at the given
+ * index and use them as shift value.
+ */
+#define VALID_RANGE(count) (1UL << ((VALID_RANGES >> (count * 5)) & 0x1F))
 
 /**
  * Maximum valid Unicode value.
@@ -188,7 +194,7 @@ static uint8_t* parse_chunk(utf8_validator* validator, uint8_t const* inPtr, uin
 			}
 
 			// check for overlong sequences
-			if (value < (1 << (((VALID_RANGES >> (count * 5)) & 0x1F)))) {
+			if (value < VALID_RANGE(count)) {
 				goto invalid_sequence;
 			}
 		}
