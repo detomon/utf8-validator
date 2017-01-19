@@ -1,10 +1,4 @@
-#include <stdio.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
-#include "utf8-validator.h"
+#include "test.h"
 
 static uint8_t* readFile(char const* path, size_t* outSize) {
 	size_t size;
@@ -49,7 +43,7 @@ int main() {
 
 	while (inSize) {
 		outSize = sizeof(buffer);
-		utf8_validate(&validator, (uint8_t const**)&dataPtr, &inSize, buffer, &outSize);
+		utf8_validate(&validator, &dataPtr, &inSize, buffer, &outSize);
 
 		if (outSize) {
 			handleChunk(buffer, outSize);

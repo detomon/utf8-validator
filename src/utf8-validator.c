@@ -93,7 +93,7 @@ static inline uint8_t* write_replacement_glyph(uint8_t* buffer) {
  * Validates an UTF-8 encoded byte chunk by replacing invalid sequences with the
  * replacement glyph � (U+FFFD). Marks the last complete sequence found in the
  * chunk. If a sequence cannot be completed, the current state is saved and
- * continued with the next chunk.
+ * continued when the next chunk is given.
  */
 static uint8_t* parse_chunk(utf8_validator* validator, uint8_t const* inPtr, uint8_t const* end, uint8_t* outPtr) {
 	uint32_t count;
