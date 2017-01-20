@@ -95,6 +95,50 @@ static inline uint8_t* write_replacement_glyph(uint8_t* buffer) {
 }
 
 /**
+ * Save current state for continuation.
+ */
+static void save_state(utf8_validator* validator, uint32_t count, int32_t offset, uint32_t value, uint8_t* outPtr) {
+	validator->count = count;
+	validator->offset = offset;
+	validator->value = value;
+
+	validator->fragSize = offset + 1;
+	memcpy(validator->frag, outPtr - validator->fragSize, validator->fragSize);
+}
+
+/**
+ * Check if glyph value is valid.
+ */
+static int check_glyph_value(uint32_t value, uint32_t count) {
+	if (value >= 0xD800) {
+		// check if low or high surrogate
+		// matches range from 0xD8nn to 0xDCnn
+		if ((value & ~0x07FF) == 0xD800) {
+			return 0;
+		}
+		// U+nFFFE U+nFFFF (for n = 1..10)
+		else if ((value & 0xFFFE) == 0xFFFE) {
+			return 0;
+		}
+		// other non-characters
+		else if (value >= 0xFDD0 && value <= 0xFDEF) {
+			return 0;
+		}
+		// check for maximum value
+		else if (value > MAX_VALUE) {
+			return 0;
+		}
+	}
+
+	// check for overlong sequences
+	if (value < MIN_VALID_VALUE(count)) {
+		return 0;
+	}
+
+	return 1;
+}
+
+/**
  * Validates an UTF-8 encoded byte chunk by replacing invalid sequences with the
  * replacement glyph � (U+FFFD). Marks the last complete sequence found in the
  * chunk. If a sequence cannot be completed, the current state is saved and
@@ -162,38 +206,11 @@ static uint8_t* parse_chunk(utf8_validator* validator, uint8_t const* inPtr, uin
 
 			// save state and abort if sequence is truncated
 			if (offset < count) {
-				validator->count = count;
-				validator->offset = offset;
-				validator->value = value;
-
-				validator->fragSize = offset + 1;
-				memcpy(validator->frag, outPtr - validator->fragSize, validator->fragSize);
-
+				save_state(validator, count, offset, value, outPtr);
 				break;
 			}
 
-			if (value >= 0xD800) {
-				// check if low or high surrogate
-				// matches range from 0xD8nn to 0xDCnn
-				if ((value & ~0x07FF) == 0xD800) {
-					goto invalid_sequence;
-				}
-				// U+nFFFE U+nFFFF (for n = 1..10)
-				else if ((value & 0xFFFE) == 0xFFFE) {
-					goto invalid_sequence;
-				}
-				// other non-characters
-				else if (value >= 0xFDD0 && value <= 0xFDEF) {
-					goto invalid_sequence;
-				}
-				// check for maximum value
-				else if (value > MAX_VALUE) {
-					goto invalid_sequence;
-				}
-			}
-
-			// check for overlong sequences
-			if (value < MIN_VALID_VALUE(count)) {
+			if (!check_glyph_value(value, count)) {
 				goto invalid_sequence;
 			}
 		}
