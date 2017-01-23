@@ -1,6 +1,8 @@
 UTF-8 Validator
 ===============
 
+[![Build Status](https://api.travis-ci.org/detomon/utf8-validator.svg?branch=master)](https://travis-ci.org/detomon/utf8-validator)
+
 The UTF-8 validator reads chunks of bytes of arbitary length and outputs
 chunks containing only complete UTF-8 sequences. Sequences overlapping the
 chunk boundaries are joined. Invalid bytes and sequences are replaced with
