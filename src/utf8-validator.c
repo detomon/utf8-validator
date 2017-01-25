@@ -181,7 +181,7 @@ static uint8_t* parse_chunk(utf8_validator* validator, uint8_t const* inPtr, uin
 	}
 
 	while (inPtr < end) {
-		int c = *inPtr++;
+		uint32_t c = *inPtr++;
 
 		if (c <= 0x7F) {
 			*outPtr++ = c;
@@ -250,7 +250,7 @@ void utf8_validate(utf8_validator* validator, uint8_t const** inChunk, size_t* i
 	assert(bufferSize >= 72);
 
 	if (validator->fragSize) {
-		memcpy(outBuffer, validator->frag, validator->fragSize);
+		memcpy(outPtr, validator->frag, validator->fragSize);
 
 		bufferSize -= validator->fragSize;
 		outPtr += validator->fragSize;

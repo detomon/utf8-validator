@@ -104,7 +104,5 @@ typedef struct {
  * @param inSize The size of the input chunk in bytes.
  * @param outBuffer The buffer in which to write the validated output.
  * @param outSize The size of the provided output buffer.
- *
- * @return No errors are defined.
  */
 extern void utf8_validate(utf8_validator* validator, uint8_t const** inChunk, size_t* inSize, uint8_t* outBuffer, size_t* outSize);
